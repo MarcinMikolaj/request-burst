@@ -1,6 +1,6 @@
-package com.request.burst.controller.impl;
+package com.request.burst.controller.health.impl;
 
-import com.request.burst.controller.HealthControllerApi;
+import com.request.burst.controller.health.HealthControllerApi;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
