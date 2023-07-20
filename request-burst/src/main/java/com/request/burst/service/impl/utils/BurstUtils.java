@@ -29,7 +29,7 @@ public class BurstUtils {
     }
 
     public static HttpMethod resolveHttpMethod(String method){
-        return switch (method) {
+        return switch (method.toLowerCase()) {
             case "get" -> HttpMethod.GET;
             case "post" -> HttpMethod.POST;
             case "put" -> HttpMethod.PUT;
