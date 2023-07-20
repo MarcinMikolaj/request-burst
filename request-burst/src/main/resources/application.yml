@@ -4,3 +4,8 @@ server:
 spring:
   application:
     name: request-burst-main
+
+application:
+  request:
+    settings:
+      request-limit: 100000
