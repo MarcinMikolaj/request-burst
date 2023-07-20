@@ -8,6 +8,7 @@ Rapidly Sending Multiple Requests for Load and Stress Testing.
   
 - [Functional and non-functional requirements](#functional-and-non-functional-requirements)
 - [Project status](#project-status)
+- [Resources](#resources)
 - [Contact](#contact)
 
 ## General info
@@ -37,13 +38,17 @@ The project has been completed, all functional and non-functional requirements h
 
 ## Setup
 
-## Setup
 1. Open this URL https://github.com/MarcinMikolaj/request-burst
 2. Now we must find the green rectangle where it writes „<>CODE”
 3. We select HTTPS and there is a link below that you need to copy
 4. The next step is to open IntelliJ And choose File > New > Project from Version Control
 5. Then we need to paste our URL from Github, select the path to our project on our PC, and click Clone.
 6. Enjoy our Project! 😄
+
+## Resources
+
+📦 Postamn Collection to test API V1: [request-burst-collection.postman_collection.zip](https://github.com/MarcinMikolaj/request-burst/files/12109580/request-burst-collection.postman_collection.zip)
+
 
 ## Contact
 
