@@ -38,7 +38,7 @@ The project has been completed, all functional and non-functional requirements h
 ## Setup
 
 ## Setup
-1. Open this URL https://github.com/MarcinMikolaj/elastic-metrology-search
+1. Open this URL https://github.com/MarcinMikolaj/request-burst
 2. Now we must find the green rectangle where it writes „<>CODE”
 3. We select HTTPS and there is a link below that you need to copy
 4. The next step is to open IntelliJ And choose File > New > Project from Version Control
@@ -49,4 +49,4 @@ The project has been completed, all functional and non-functional requirements h
 
 Author: Marcin Mikołajczyk \
 Email: marcin.mikolajczyk22@gmail.com \
-Project Link: https://github.com/MarcinMikolaj/rtCommunicator
+Project Link: https://github.com/MarcinMikolaj/request-burst
