@@ -18,10 +18,12 @@ Rapidly Sending Multiple Requests for Load and Stress Testing.
 * Spring Boot
 * Spring Async
 * Spring WebFlux
+* Cassandra (Cloud - Datastax AstraDB)
 * REST
 
 ## About the project
 
+There is possibility to point that ours job entry can be saved using scalable solution (Cassandra on cloud) by setting storage parameter during sync/async request.
 
 ## Functional and non-functional requirements
 
