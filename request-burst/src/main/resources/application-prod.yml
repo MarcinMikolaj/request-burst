@@ -1,0 +1,40 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: request-burst-main
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  cassandra:
+    username: ygWieHWYazeMctFZrfMIBgBU
+    password: s1IPM.SBC4lu9B3,WqbeIjoWyf6MZy1njrbZXwaYRqS3q0aoI_0cghjna+qZYOkGpchgj+J0f_gM,LrhqC7yydUaz2ax8LAM.TEbUhfrDg1pjjmou604fOdnShsQi7dC
+    schema-action: recreate
+    keyspace-name: '"burst"'
+    request:
+      timeout: 10s
+    connection:
+      connect-timeout: 10s
+      init-query-timeout: 10s
+
+astra:
+  api:
+    database-id: 446ba9e4-ec4a-424b-a279-a2c0312dbcdc
+    database-region: us-east1
+    application-token: AstraCS:ygWieHWYazeMctFZrfMIBgBU:b85685fb24345b1d63bf2fc542bc4877775b8d2667cb6dfb5936501ce5716121
+  cql:
+    driver-config:
+      basic:
+        session-keyspace: '"burst"'
+    download-scb:
+      enabled: true
+      path: secure-connect.zip
+
+application:
+  request:
+    settings:
+      request-limit: 100000

@@ -1,4 +1,4 @@
-package com.request.burst.service;
+package com.request.burst.service.burst;
 
 import com.request.burst.model.JobResult;
 
