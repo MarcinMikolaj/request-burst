@@ -1,21 +1,21 @@
 package com.request.burst.service.burst.impl;
 
 import com.request.burst.model.JobEntry;
-import com.request.burst.model.JobResult;
+import com.request.burst.repository.JobEntryRepository;
 import com.request.burst.service.burst.BurstService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -23,37 +23,57 @@ import java.util.stream.IntStream;
 @Service
 @RequiredArgsConstructor
 public class BurstServiceImpl implements BurstService {
-    private final AsyncOperation asyncOperation;
+    @Value("${application.request.settings.re-query}")
+    private int reQuery;
+    @Value("${application.request.settings.on-4xx-response}")
+    private String on4xxResponse;
 
     @Override
-    public JobResult callAsync(String method, String url, Integer count) throws ExecutionException, InterruptedException {
-        Long start = System.currentTimeMillis() / 1000;
-        List<JobEntry> jobEntries = new LinkedList<>();
-        List<CompletableFuture<JobEntry>> completableFutures = IntStream.range(0, count)
-                .mapToObj(i -> asyncOperation.callAsync(method, url, count))
-                .toList();
-        CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[0])).join();
-        for(CompletableFuture<JobEntry> entry: completableFutures)
-            jobEntries.add(entry.get());
-        log.info(getFormatMessage(start, System.currentTimeMillis() / 1000));
-        return new JobResult(jobEntries);
+    public Flux<JobEntry> callAsync(String method, String url, Integer count) {
+        return Flux.range(0, count)
+                .flatMap(num -> {
+                    LocalDateTime start = LocalDateTime.now();
+                    return invokeAsync(url, resolveHttpMethod(method)).map(response -> prepareJobEntry(url, method, count , num, start, response));
+                })
+                .doOnNext(entry -> entry.setStop(LocalDateTime.now()))
+                .doOnNext(entry -> entry.setDuration(ChronoUnit.MILLIS.between(entry.getStart(), entry.getStop())))
+                .sort(JobEntry::compareTo);
     }
 
     @Override
-    public JobResult callSync(String method, String url, Integer count) {
-        Long start = System.currentTimeMillis() / 1000;
-        List<JobEntry> jobEntries = IntStream.range(0, count)
-                .mapToObj(i -> prepareJobEntry(url, method, count, 0, LocalDateTime.now()))
+    public List<JobEntry> callSync(String method, String url, Integer count) {
+        return IntStream.range(0, count)
+                .mapToObj(i -> prepareJobEntry(url, method, count, i, LocalDateTime.now()))
                 .peek(entry -> entry.setResult(invokeSync(resolveHttpMethod(method), url)))
                 .peek(entry -> entry.setCurrentRequestCounter(entry.getCurrentRequestCounter() + 1))
                 .peek(entry -> entry.setStop(LocalDateTime.now()))
                 .peek(entry -> entry.setDuration(ChronoUnit.MILLIS.between(entry.getStart(), entry.getStop())))
                 .collect(Collectors.toList());
-        log.info(getFormatMessage(start, System.currentTimeMillis() / 1000));
-        return new JobResult(jobEntries);
     }
 
-    protected JobEntry prepareJobEntry(String url, String method, int totalRequestLimit, int currentRequestCounter, LocalDateTime start, String result){
+    protected Mono<String> invokeAsync(String url, HttpMethod method) {
+        return WebClient.create()
+                .method(method)
+                .uri(url)
+                .exchangeToMono((clientResponse) -> clientResponse.statusCode().is2xxSuccessful()
+                        ? clientResponse.bodyToMono(String.class)
+                        : clientResponse.statusCode().is4xxClientError()
+                              ? Mono.just(on4xxResponse)
+                              : clientResponse.createException().flatMap(Mono::error))
+                .retry(reQuery);
+    }
+
+    protected String invokeSync(HttpMethod httpMethod, String uri){
+        return WebClient.create()
+                .method(httpMethod)
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(String.class)
+                .retry(reQuery)
+                .block();
+    }
+
+    private JobEntry prepareJobEntry(String url, String method, int totalRequestLimit, int currentRequestCounter, LocalDateTime start, String result){
         return JobEntry.builder()
                 .url(url)
                 .method(method)
@@ -64,16 +84,7 @@ public class BurstServiceImpl implements BurstService {
                 .build();
     }
 
-    protected String invokeSync(HttpMethod httpMethod, String uri){
-        return WebClient.create()
-                .method(httpMethod)
-                .uri(uri)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-    }
-
-    protected JobEntry prepareJobEntry(String url, String method, int totalRequestLimit, int currentRequestCounter, LocalDateTime start){
+    private JobEntry prepareJobEntry(String url, String method, int totalRequestLimit, int currentRequestCounter, LocalDateTime start){
         return JobEntry.builder()
                 .url(url)
                 .method(method)

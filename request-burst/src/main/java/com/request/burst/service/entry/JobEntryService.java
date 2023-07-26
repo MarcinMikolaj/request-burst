@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface JobEntryService {
     Flux<JobEntry> saveAll(List<JobEntry> jobEntries);
+    void saveAll(Flux<JobEntry> jobEntries);
 
 }

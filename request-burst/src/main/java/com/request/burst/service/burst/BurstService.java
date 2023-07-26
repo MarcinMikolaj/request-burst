@@ -1,11 +1,12 @@
 package com.request.burst.service.burst;
 
-import com.request.burst.model.JobResult;
+import com.request.burst.model.JobEntry;
+import reactor.core.publisher.Flux;
 
-import java.util.concurrent.ExecutionException;
+import java.util.List;
 
 public interface BurstService {
-    JobResult callSync(String method, String url, Integer count);
-    JobResult callAsync(String method, String url, Integer count) throws ExecutionException, InterruptedException;
+    List<JobEntry> callSync(String method, String url, Integer count);
+    Flux<JobEntry> callAsync(String method, String url, Integer count);
 
 }

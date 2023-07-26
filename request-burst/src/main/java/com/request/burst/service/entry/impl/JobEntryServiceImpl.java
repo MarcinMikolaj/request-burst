@@ -24,4 +24,9 @@ public class JobEntryServiceImpl implements JobEntryService {
                 .toList();
         return jobEntryRepository.saveAll(Flux.fromStream(entries.stream()));
     }
+
+    @Override
+    public void saveAll(Flux<JobEntry> jobEntries) {
+        jobEntryRepository.saveAll(jobEntries.doOnNext(enr -> enr.setId(UUID.randomUUID()))).subscribe();
+    }
 }
