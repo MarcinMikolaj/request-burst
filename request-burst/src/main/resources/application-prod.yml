@@ -38,3 +38,5 @@ application:
   request:
     settings:
       request-limit: 100000
+      re-query: 5
+      on-4xx-response: Error message
